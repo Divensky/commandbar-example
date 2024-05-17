@@ -9,10 +9,21 @@ export interface EventItem {
   organizer: string;
 }
 
-type TaskType = 'personal' | 'work' | 'miscellaneous';
+export type User = {
+  name: string;
+  id: number;
+  icon?: string;
+};
 
-export interface TodoItem {
-  label: string;
-  type: TaskType;
-  isComplete: boolean;
-}
+export type Metadata = {
+  meta?: string;
+};
+
+export type CustomComponent = {
+  mount: (node: HTMLElement) => CustomComponentInstance;
+};
+
+export type CustomComponentInstance = {
+  render: (data: User, metadata: Metadata) => void;
+  unmount: () => void;
+};
