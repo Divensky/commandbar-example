@@ -3,11 +3,12 @@ import { onMounted } from 'vue';
 import { init } from 'commandbar';
 import router from './router';
 import EventService from './services/EventService';
+import { User, Metadata } from './types';
 
-init('0854bf03');
+init('0854bf03', { debug: true });
 const currentUser = 'irina8kats@gmail.com';
 
-function displayUser(user) {
+function displayUser(user: User) {
   alert(`User: ${user}`);
 }
 
@@ -42,7 +43,6 @@ onMounted(async () => {
       labelKey: 'title',
     });
 
-    window.CommandBar.addCallback('displayUser', displayUser);
     window.CommandBar.addCallback('displayEvent', displayEvent);
     window.CommandBar.addCommand({
       name: 'displayEvent',
@@ -60,29 +60,64 @@ onMounted(async () => {
       },
     });
 
+    window.CommandBar.addCallback('displayUser', displayUser);
     window.CommandBar.addRecordAction('users', {
       text: 'Tell me about user records',
       name: 'users',
       category: 'Welcome',
       icon: 'https://openmoji.org/data/color/svg/1F590.svg',
-      template: {
-        type: 'callback',
-        value: 'displayUser',
-      },
       arguments: {
         user: { order_key: 0, value: '', type: 'context' },
       },
     });
 
+    window.CommandBar.addComponent('user-preview', 'Basic User Preview', {
+      mount: (elem: HTMLElement) => ({
+        render: (data: User, metadata: Metadata) => {
+          console.log('rendering', data, metadata, elem);
+          elem.innerHTML =
+            '<div>' +
+            '<h3>' +
+            data.name +
+            '</h3>' +
+            '<div><img src="' +
+            data.icon +
+            '" /></div>' +
+            '</div>';
+        },
+        unmount: (elem: HTMLElement) => {
+          console.log('unmount', elem);
+          // todo: clean up as needed
+        },
+      }),
+    });
+
     window.CommandBar.addRecords(
       'users',
       [
-        { name: 'Jane Smith', id: 1 },
-        { name: 'Jill Kelly', id: 2 },
-        { name: 'Jack Brown', id: 3 },
+        {
+          name: 'Jane Smith',
+          id: 1,
+          icon: 'https://openmoji.org/data/color/svg/1F469-200D-2696-FE0F.svg',
+        },
+        {
+          name: 'Jill Kelly',
+          id: 2,
+          icon: 'https://openmoji.org/data/color/svg/1F468-200D-1F4BC.svg',
+        },
+        {
+          name: 'Jack Brown',
+          id: 3,
+          icon: 'https://openmoji.org/data/color/svg/1F468-200D-1F4BC.svg',
+        },
       ],
       {
+        detail: { type: 'component', value: 'user-preview' },
         labelKey: 'name',
+        descriptionKey: 'id',
+        recordOptions: {
+          url: '/about',
+        },
       },
     );
   });
